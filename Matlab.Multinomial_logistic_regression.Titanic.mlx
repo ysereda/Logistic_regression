@@ -1,0 +1,26 @@
+clc, clear, close all
+% Change to your folder containing data
+%cd 'C:\Program Files\MATLAB\R2017a\examples\matlab_featured'
+data = readtable('titanic.csv','NumHeaderLines',0);  % skips the first 0 rows of data
+disp(data) % print entire table
+disp(data.Survived(1)) % access a value
+
+% Multiple Logistic Regression Fit
+Y = data.Survived
+X = data(:,[2 4 5 6 7 8]) % Pclass, Sex, Age, Siblings_SpousesAboard, Parents_ChildrenAboard, Fare
+% Convert categorical variable Sex into numeric
+X.Sex = double(categorical(data.Sex)); % female=1, male=2
+X = table2array(X);
+Y = double(categorical(Y));
+
+[coefs,dev,stats] = mnrfit(X,Y)
+[coefs,dev,stats] = mnrfit(X,Y,'model','hierarchical')
+% coefs - coefficients of regression
+% dev — Deviance of the fit
+% stats — Model statistics
+% https://www.mathworks.com/help/stats/mnrfit.html
+
+aX = coefs(1)+X*coefs(2:7)-1;
+p = exp(aX)./(1+exp(aX));
+R = [Y-1 p X]; % results
+R(300:305, :)
